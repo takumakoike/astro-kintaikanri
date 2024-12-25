@@ -1,0 +1,89 @@
+---
+export const prerender = false;
+
+import { toCodes } from "astro:i18n";
+import Layout from "../layouts/Layout.astro";
+import { db, Users } from "astro:db";
+
+let staffCount: number | string = 1;
+let users: {} | any;
+users = await db.select().from(Users);
+staffCount += users.length;
+staffCount = staffCount.toString();
+
+// type UsersType = {
+//     user_name: string;
+//     user_occupation: string;
+//     user_emp_type: string;
+//     user_id?: string;
+// }
+
+if (Astro.request.method === "POST") {
+  const formData = await Astro.request.formData();
+  const userId = formData.get("staffid")?.toString() ?? staffCount.toString();
+  const userName = formData.get("staffname")?.toString() ?? "";
+  const userOccupation = formData.get("staffoccupation")?.toString() ?? "";
+  const userEmployeeType =
+    formData.get("staffemptype")?.toString() ?? "full-worker";
+
+  if (userName && userOccupation) {
+    await db.insert(Users).values({
+      userId,
+      userName,
+      userOccupation,
+      userEmployeeType,
+    });
+  }
+}
+---
+
+<Layout>
+  <h1>スタッフ登録ページ</h1>
+  <form action="" method="POST" enctype="multipart/form-data">
+    <div class="form_staffId">
+      <label for="staffid">スタッフID</label>
+      <input
+        type="text"
+        id="staffid"
+        name="staffid"
+        placeholder={staffCount}
+        value={staffCount}
+        disabled
+      />
+    </div>
+    <div class="form_staffName">
+      <label for="staffname">スタッフ氏名</label>
+      <input type="text" id="staffname" name="staffname" />
+    </div>
+    <div class="form_staffOccupation">
+      <label for="staffoccumpation">職種</label>
+      <input type="text" id="staffoccupation" name="staffoccupation" />
+    </div>
+    <div class="form_staffEmpType">
+      <label for="staffemptype">雇用形態</label>
+      <select name="staffemptype" id="staffemptype">
+        <option value="full-worker">正社員</option>
+        <option value="partTime-worker">パートタイマー</option>
+        <option value="other-worker">その他</option>
+      </select>
+    </div>
+    <button type="submit">登録</button>
+  </form>
+</Layout>
+
+<style>
+  form {
+    width: 95%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.3rem;
+    justify-content: start;
+  }
+  form input,
+  form select {
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 0.3rem 0 0.3rem 1.2rem;
+  }
+</style>
