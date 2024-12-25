@@ -1,0 +1,2 @@
+# astro-kintaikanri
+Astroフレームワークを利用した勤怠管理アプリのソースコード
